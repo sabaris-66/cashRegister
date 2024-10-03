@@ -1,4 +1,4 @@
-let price = 3.26;
+let price = 19.5;
 // 1.87
 let cid = [
   ["PENNY", "PENNIES", 1.01],
@@ -25,15 +25,15 @@ const currencyUnitAmount = {
 };
 
 const body = document.querySelector("body");
-const statusBar = document.createElement("div");
+const changeDue = document.createElement("div");
 const cash = document.createElement("input");
 const purchase = document.createElement("button");
 const total = document.createElement("div");
-const changeDue = document.createElement("div");
+const remainingCash = document.createElement("div");
 
-statusBar.id = "status";
-cash.id = "cash";
 changeDue.id = "change-due";
+cash.id = "cash";
+remainingCash.id = "remaining-cash";
 purchase.id = "purchase-btn";
 total.id = "total";
 
@@ -43,25 +43,25 @@ cash.placeholder = "Enter cash from customer";
 purchase.textContent = "PURCHASE";
 total.textContent = `Total: $${price}`;
 
-const changeDueUpdate = () => {
-  changeDue.innerHTML = `Change in drawer:<br>`;
+const remainingCashUpdate = () => {
+  remainingCash.innerHTML = `Change in drawer:<br>`;
   cid.forEach((unit) => {
-    changeDue.innerHTML += `${unit[1]}: ${unit[2]}<br>`;
+    remainingCash.innerHTML += `${unit[1]}: ${unit[2]}<br>`;
   });
 };
 
-changeDueUpdate();
-statusBar.style.display = "none";
+remainingCashUpdate();
+changeDue.style.display = "none";
 
-body.appendChild(statusBar);
+body.appendChild(changeDue);
 body.appendChild(cash);
 body.appendChild(purchase);
 body.appendChild(total);
-body.appendChild(changeDue);
+body.appendChild(remainingCash);
 
 const enoughMoneyCheck = (amount) => {
   if (amount < price) {
-    alert("The customer does not have enough money to buy the product");
+    alert("Customer does not have enough money to purchase the item");
     cash.value = "";
     return false;
   }
@@ -73,23 +73,33 @@ const totalChangeInDrawer = () => {
 };
 
 const remainingChange = () => {
-  let amount = cash.value;
+  let amount = parseFloat(cash.value);
+  changeDue.style.display = "block";
+  changeDue.innerHTML = "";
+  if (amount === price) {
+    changeDue.innerHTML = "No change due - customer paid with exact cash";
+    return;
+  }
   if (!enoughMoneyCheck(amount)) {
     return;
   }
-  amount -= price;
-  statusBar.style.display = "block";
-  statusBar.innerHTML = "";
-  const totalChange = totalChangeInDrawer();
 
-  if (amount > totalChange) {
-    statusBar.innerHTML += `Status: INSUFFICIENT_FUNDS`;
-  } else if (amount === totalChange) {
-    statusBar.innerHTML += `Status: CLOSED`;
-  } else {
-    statusBar.innerHTML += `Status: OPEN`;
-  }
+  // if (
+  //   price < amount &&
+  //   totalChange === Math.round((amount - price) * 100) / 100
+  // ) {
+  //   changeDue.innerHTML = "Status: CLOSED";
+  // }
+  amount = Math.round((amount - price) * 100) / 100;
 
+  // if (amount > totalChange) {
+  //   changeDue.innerHTML = "Status: INSUFFICIENT_FUNDS";
+  // } else if (amount === totalChange) {
+  //   changeDue.innerHTML = "Status: CLOSED";
+  // } else {
+  //   changeDue.innerHTML += "Status: OPEN ";
+  // }
+  let newArray = [];
   cid.reverse().forEach((unit) => {
     let count = 0;
     while (
@@ -98,22 +108,37 @@ const remainingChange = () => {
     ) {
       amount = Math.round((amount - currencyUnitAmount[unit[0]]) * 100) / 100;
       unit[2] = Math.round((unit[2] - currencyUnitAmount[unit[0]]) * 100) / 100;
-      console.log(cid);
       count++;
     }
     if (count > 0) {
-      statusBar.innerHTML += `<br>${unit[0]}: $${
-        Math.round(currencyUnitAmount[unit[0]] * count * 100) / 100
-      }`;
+      newArray.push([
+        unit[0],
+        Math.round(currencyUnitAmount[unit[0]] * count * 100) / 100,
+      ]);
+      // changeDue.innerHTML += String(
+      //   `${unit[0]}: $${
+      //     Math.round(currencyUnitAmount[unit[0]] * count * 100) / 100
+      //   }`
+      // );
     }
   });
-
+  const totalChange = totalChangeInDrawer();
   if (amount > 0) {
-    statusBar.innerHTML = "Status: INSUFFICIENT_FUNDS";
+    changeDue.innerHTML = "Status: INSUFFICIENT_FUNDS";
+  } else if (totalChange === 0) {
+    changeDue.innerHTML = `<p>Status: CLOSED</p>`;
+    newArray.forEach(([unit, value]) => {
+      changeDue.innerHTML += `<p>${unit}: $${value}</p>`;
+    });
+  } else {
+    changeDue.innerHTML += `<p>Status: OPEN</p>`;
+    newArray.forEach(([unit, value]) => {
+      changeDue.innerHTML += `<p>${unit}: $${value}</p>`;
+    });
   }
-  cash.value = "";
+  cash.value = 0;
   cid.reverse();
-  changeDueUpdate();
+  remainingCashUpdate();
 };
 
 purchase.addEventListener("click", remainingChange);
