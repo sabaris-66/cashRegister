@@ -1,0 +1,46 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  padding: 20px;
+  background-color: gray;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+}
+
+h1,
+#status,
+#cash,
+#change-due,
+#purchase-btn,
+#total {
+  padding: 15px;
+  background-color: black;
+  color: white;
+  border-radius: 25px;
+  border: 8px solid white;
+  font-size: larger;
+  width: 400px;
+}
+
+h1 {
+  font-size: 50px;
+  font-weight: bolder;
+}
+
+#purchase-btn:hover {
+  background-color: gray;
+  cursor: pointer;
+}
+
+#cash {
+  text-align: center;
+}
